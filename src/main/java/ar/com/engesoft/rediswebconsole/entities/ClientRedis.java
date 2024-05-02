@@ -1,8 +1,10 @@
 package ar.com.engesoft.rediswebconsole.entities;
 
+import ar.com.engesoft.rediswebconsole.exceptions.ServiceException;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.api.redisnode.BaseRedisNodes;
@@ -13,8 +15,10 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 
+@Slf4j
 @Getter
 @Setter
 @Table("CLIENT_REDIS")
@@ -60,25 +64,29 @@ public class ClientRedis {
         };
     }
 
-    public void setConfigYaml(String configYaml) throws IOException {
-        this.configYaml = configYaml;
-        this.config = Config.fromYAML(configYaml);
-        setDefaultValues(config);
-    }
+    public RedissonClient getClient() {
 
-    public RedissonClient getClient() throws IOException {
-
-        if (client == null || client.isShutdown() || client.isShuttingDown()) {
-            this.client = this.initialize().getClient();
+        if (isClientClose()) {
+            try {
+                this.client = this.initialize().getClient();
+            } catch (IOException ioe) {
+                log.error("Ocurrio un error al intentar inicializar la conexion {}", this, ioe);
+                throw new ServiceException("CONNECTION_INITIALIZATION_ERROR",
+                        ioe.getMessage());
+            }
         }
 
         return client;
     }
 
+    private boolean isClientClose() {
+        return client == null || client.isShutdown() || client.isShuttingDown();
+    }
+
     public ClientRedis initialize() throws IOException {
-        this.setConfigYaml(this.configYaml);
-        final RedissonClient redissonClient = Redisson.create(config);
-        this.setClient(redissonClient);
+        this.config = Config.fromYAML(configYaml);
+        setDefaultValues(config);
+        this.setClient(Redisson.create(config));
         return this;
     }
 
@@ -100,5 +108,21 @@ public class ClientRedis {
 
         config.setNettyThreads(3);
         config.setThreads(3);
+    }
+
+    public void shutdown() throws IOException {
+        if (!isClientClose()) {
+            this.getClient().shutdown();
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "ClientRedis{" +
+                "id='" + id + '\'' +
+                ", client=" + client +
+                ", type='" + type + '\'' +
+                ", name='" + name + '\'' +
+                '}';
     }
 }
