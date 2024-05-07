@@ -1,22 +1,12 @@
 package ar.com.engesoft.rediswebconsole.services;
 
-import ar.com.engesoft.rediswebconsole.entities.ClientRedis;
-import ar.com.engesoft.rediswebconsole.exceptions.ServiceException;
-import org.redisson.api.RKeys;
-import org.redisson.api.RType;
-import org.redisson.config.Config;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 public class RedisClientService {
-
+/*
     @Autowired
-    private RedisConnectionService connectionService;
+    private ConnectionsService connectionService;
 
     public Iterable<String> loadKeys(String connectionId) {
         return keys(connectionId).getKeys();
@@ -44,7 +34,7 @@ public class RedisClientService {
     private RKeys keys(String connectionId) {
         return connectionService
                 .findById(connectionId)
-                .getClient().getKeys();
+                .getRedisTemplate().getKeys();
     }
 
     public void expire(String connectionId, String key, long seconds) {
@@ -72,5 +62,5 @@ public class RedisClientService {
         int port = Integer.parseInt(address.split(":")[0]);
 
         keys(connectionId).migrate(key, address, port, db, 10_000);
-    }
+    }*/
 }

@@ -1,18 +1,15 @@
 package ar.com.engesoft.rediswebconsole.controllers;
 
 import ar.com.engesoft.rediswebconsole.services.RedisClientService;
-import org.redisson.api.RKeys;
-import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("${rest.context-path}/client/{connectionId}/keys")
 public class RedisKeysController {
-
+/*
     @Autowired
     private RedisClientService redisClientService;
 
@@ -65,4 +62,6 @@ public class RedisKeysController {
             @PathVariable String connectionId, @PathVariable String key, @PathVariable String connectionTarget) {
         redisClientService.migrate(connectionId, key, connectionTarget);
     }
+
+ */
 }

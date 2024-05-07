@@ -14,7 +14,7 @@ import java.io.IOException;
 public class RedisConnectionServiceTest {
 
     @InjectMocks
-    private RedisConnectionService redisConnectionService;
+    private ConnectionsService connectionsService;
 
     @Mock
     private JdbcAggregateTemplate jdbcAggregateTemplate;

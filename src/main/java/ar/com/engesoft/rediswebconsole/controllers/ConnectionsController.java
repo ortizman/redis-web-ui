@@ -1,8 +1,10 @@
 package ar.com.engesoft.rediswebconsole.controllers;
 
 import ar.com.engesoft.rediswebconsole.entities.ClientRedis;
-import ar.com.engesoft.rediswebconsole.services.RedisConnectionService;
+import ar.com.engesoft.rediswebconsole.services.ConnectionsService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.connection.RedisConfiguration;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -13,22 +15,23 @@ import java.util.Collection;
 public class ConnectionsController {
 
     @Autowired
-    private RedisConnectionService connectionService;
+    private ConnectionsService connectionService;
 
     /**
      * Create new clinet for the given configuration.
      *
-     * @param config
+     * @param redisConfiguration
      * @return {id} unique id
      */
-    @PostMapping("/")
-    public String create(@RequestBody String config) throws IOException {
-        return this.connectionService.createConnection(config);
+    @PostMapping("/standalone")
+    public String create(@RequestBody RedisStandaloneConfiguration redisConfiguration) throws IOException {
+        return this.connectionService.createStandalone(redisConfiguration);
     }
 
     @PutMapping("/{id}")
-    public ClientRedis updateConnection(@PathVariable("id") String id, @RequestBody String config) throws IOException {
-        return this.connectionService.updateConnection(id, config);
+    public void updateConnection(@PathVariable("id") String id,
+                                        @RequestBody RedisConfiguration redisConfiguration) throws IOException {
+        this.connectionService.updateConnection(id, redisConfiguration);
     }
 
     @GetMapping("/")
@@ -41,19 +44,14 @@ public class ConnectionsController {
         return connectionService.findById(id);
     }
 
-    @GetMapping(value = "/{id}/configYaml", produces = "application/x-yaml")
+    @GetMapping(value = "/{id}/redisConfiguration", produces = "application/json")
     public String getConfigYamlById(@PathVariable("id") String id) {
-        return connectionService.findById(id).getConfigYaml();
+        return connectionService.findById(id).getRedisConfigurationJson();
     }
 
     @PatchMapping("/{id}/name")
     public ClientRedis setName(@PathVariable("id") String id, @RequestBody String name) {
-        return this.connectionService.setConnectionName(id, name);
-    }
-
-    @PatchMapping("/{id}/type")
-    public ClientRedis setType(@PathVariable("id") String id, @RequestBody String type) {
-        return this.connectionService.setConnectionType(id, type);
+        return this.connectionService.setConnectionAlias(id, name);
     }
 
 }
